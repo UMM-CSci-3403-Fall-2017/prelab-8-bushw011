@@ -54,12 +54,13 @@ public class ThreadedSearch<T> implements Runnable {
 	int end = 0;
 	int rangeDist = list.size() / numThreads;
 	int endOfLast = 0;
+
+	//This loop instantiates the threads incrementally, given the number of threads given.
 	for (int i = 0; i< numThreads; i++){
-		begin = endOfLast;
 		end = begin + rangeDist;
 		threads[i] = new Thread(new ThreadedSearch<T>(target, list, begin, end, sharedAnswer));
 		threads[i].start();
-		endOfLast = end;
+		begin = end;
 	}
       // Wait for all the threads to finish
       for (int i=0; i<numThreads; ++i) {
@@ -74,6 +75,7 @@ public class ThreadedSearch<T> implements Runnable {
   public void run() {
       for(int i = begin;i<end;i++){
           if(answer.getAnswer()){
+              //If the answer has been found, end the search (for that given thread)
               break;
           }
           if(list.get(i).equals(target)) {
