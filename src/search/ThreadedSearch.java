@@ -49,7 +49,7 @@ public class ThreadedSearch<T> implements Runnable {
     */
 	Answer sharedAnswer = new Answer();
 	sharedAnswer.setAnswer(false);
-	ThreadedSearch[] threads = new ThreadedSearch[numThreads];
+	Thread[] threads = new Thread[numThreads];
 	int begin = 0;
 	int end = 0;
 	int rangeDist = list.size() / numThreads;
@@ -57,23 +57,26 @@ public class ThreadedSearch<T> implements Runnable {
 	for (int i = 0; i< numThreads; i++){
 		begin = endOfLast;
 		end = begin + rangeDist;
-		threads[i] = new ThreadedSearch(target, list, begin, end, sharedAnswer);
+		threads[i] = new Thread(new ThreadedSearch<T>(target, list, begin, end, sharedAnswer));
 		threads[i].start();
 		endOfLast = end;
 	}
+      // Wait for all the threads to finish
+      for (int i=0; i<numThreads; ++i) {
+          threads[i].join();
+      }
+
     return sharedAnswer.getAnswer();
   }
   
-  public void start() {
-	  for(int i = begin;i<end;i++){
-		  if(list.get(i).equals(target)) {
-			  answer.setAnswer(true);
-		  }
-	  }
-  }
+
 
   public void run() {
-
+      for(int i = begin;i<end;i++){
+          if(list.get(i).equals(target)) {
+              answer.setAnswer(true);
+          }
+      }
   }
 
   private class Answer {
